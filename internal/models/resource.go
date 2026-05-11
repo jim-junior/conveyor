@@ -113,6 +113,30 @@ func (m *ResourceModel) FindOne(name string, resourceType string) (types.Resourc
 	return resource, nil
 }
 
+func (m *ResourceModel) BadgerDBFindOne(name string, resourceType string) (types.Resource, error) {
+	key := []byte(m.key(name, resourceType))
+
+	var resource types.Resource
+	err := m.DB.View(func(txn *badger.Txn) error {
+		item, err := txn.Get(key)
+		if err != nil {
+			if err == badger.ErrKeyNotFound {
+				return fmt.Errorf("resource with name %s and type %s not found", name, resourceType)
+			}
+			return err
+		}
+
+		return item.Value(func(val []byte) error {
+			return json.Unmarshal(val, &resource)
+		})
+	})
+	if err != nil {
+		return types.Resource{}, err
+	}
+
+	return resource, nil
+}
+
 // Delete removes a resource by its name and type.
 // It returns an error if the resource does not exist.
 func (m *ResourceModel) Delete(name string, resourceType string) error {
