@@ -149,6 +149,14 @@ func (m *ResourceModel) Delete(name string, resourceType string) error {
 	return err
 }
 
+func (m *ResourceModel) BadgerDBDelete(name string, resourceType string) error {
+	key := []byte(m.key(name, resourceType))
+
+	return m.DB.Update(func(txn *badger.Txn) error {
+		return txn.Delete(key)
+	})
+}
+
 // List retrieves all resources of a specific type.
 // It returns a slice of resource names or an error if the operation fails.
 func (m *ResourceModel) List(resourceType string) ([]string, error) {

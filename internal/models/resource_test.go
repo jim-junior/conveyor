@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -153,4 +154,39 @@ func Test_Resource_FindOne(t *testing.T) {
 			t.Fatalf("expected error when finding non-existent resource, got nil")
 		}
 	})
+}
+
+func Test_Resource_Delete(t *testing.T) {
+	db := setupTestDB(t)
+
+	resourcemodel := models.NewResourceModel(nil, db)
+
+	// Insert a resource to delete
+	err := resourcemodel.BadgerDBInsert("test-resource", "test-type", []byte("test-data"))
+	if err != nil {
+		t.Fatalf("failed to insert resource: %v", err)
+	}
+
+	t.Run("Delete Existing Resource", func(t *testing.T) {
+		err := resourcemodel.BadgerDBDelete("test-resource", "test-type")
+		if err != nil {
+			t.Fatalf("failed to delete resource: %v", err)
+		}
+
+		// Verify the resource was deleted
+		err = db.View(func(txn *badger.Txn) error {
+			_, err := txn.Get([]byte("/resources/test-type/test-resource"))
+			if err == nil {
+				return fmt.Errorf("expected resource to be deleted, but it still exists")
+			}
+			if err != badger.ErrKeyNotFound {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("failed to verify resource deletion: %v", err)
+		}
+	})
+
 }
