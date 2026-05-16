@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/dgraph-io/badger/v4"
@@ -174,6 +175,56 @@ func (m *ResourceModel) List(resourceType string) ([]string, error) {
 	for _, kv := range getResp.Kvs {
 		resources = append(resources, string(kv.Key))
 	}
+	return resources, nil
+}
+
+func (m *ResourceModel) BadgerDBList(resourceType string) ([]types.Resource, error) {
+	prefix := []byte(fmt.Sprintf("/resources/%s/", resourceType))
+
+	var resources []types.Resource
+
+	err := m.DB.View(func(txn *badger.Txn) error {
+		opts := badger.DefaultIteratorOptions
+		opts.PrefetchValues = false
+
+		it := txn.NewIterator(opts)
+		defer it.Close()
+
+		for it.Seek(prefix); it.ValidForPrefix(prefix); it.Next() {
+			item := it.Item()
+
+			key := string(item.Key())
+
+			// Skip versioned resources like:
+			// /resources/pipe4/pipeline-1/1
+			remaining := strings.TrimPrefix(key, string(prefix))
+			if strings.Contains(remaining, "/") {
+				continue
+			}
+
+			err := item.Value(func(val []byte) error {
+				var res types.Resource
+
+				if err := json.Unmarshal(val, &res); err != nil {
+					return fmt.Errorf("failed to unmarshal resource: %v", err)
+				}
+
+				resources = append(resources, res)
+				return nil
+			})
+
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to list resources: %v", err)
+	}
+
 	return resources, nil
 }
 
