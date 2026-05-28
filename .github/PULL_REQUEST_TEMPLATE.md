@@ -1,13 +1,9 @@
-# Pull Request
-
 ## Description
 
 <!-- 
 Please include a clear and concise description of the changes.
 Explain the problem this PR solves or the feature it implements.
 -->
-
----
 
 ## Related Issues / Milestones
 
@@ -16,8 +12,6 @@ Link the issues this PR addresses.
 Use the "Fixes" keyword to auto-close issues after merge. 
 Example: Fixes #12, Closes #34 
 -->
-
----
 
 ## Type of Change
 
@@ -30,8 +24,6 @@ Example: Fixes #12, Closes #34
 - [ ] Security fix
 - [ ] CI/CD or deployment
 
----
-
 ## How Has This Been Tested?
 
 <!-- 
@@ -43,19 +35,8 @@ Include instructions for reproducing the tests.
 - [ ] Integration tests
 - [ ] Manual testing
 
----
-
-## Screenshots / Logs (If Applicable)
+## Additional Notes / Screenshots / Logs (If Applicable)
 
 <!-- 
 Attach relevant screenshots, terminal output, or logs
--->
-
-
----
-
-## Additional Notes
-
-<!-- 
-Add any extra information reviewers should know, or note any follow-up work.
 -->
