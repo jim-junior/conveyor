@@ -247,3 +247,59 @@ func Test_Resource_List(t *testing.T) {
 	})
 
 }
+
+func Test_Resource_FindAll(t *testing.T) {
+	db := setupTestDB(t)
+
+	resourcemodel := models.NewResourceModel(nil, db)
+
+	// Insert multiple resources of PipelineResource type
+	for i := 1; i <= 3; i++ {
+		resource := PipelineResource{
+			Name:     fmt.Sprintf("pipeline-%d", i),
+			Resource: "pipe4",
+			Spec: PipelineResourceSpec{
+				Image: "ubuntu:latest",
+				Steps: []PipelineStep{
+					{
+						Name:    "list dir",
+						Command: "ls",
+					},
+				},
+			},
+		}
+
+		rawResource, err := json.Marshal(resource)
+		if err != nil {
+			t.Fatalf("failed to marshal resource: %v", err)
+		}
+
+		err = resourcemodel.BadgerDBInsert(resource.Name, resource.Resource, rawResource)
+		if err != nil {
+			t.Fatalf("failed to insert resource: %v", err)
+		}
+	}
+
+	t.Run("Find All Resources", func(t *testing.T) {
+		resources, err := resourcemodel.BadgerDBFindAll("pipe4")
+		fmt.Printf("Found Resources: %+v\n", resources)
+		if err != nil {
+			t.Fatalf("failed to find all resources: %v", err)
+		}
+
+		if len(resources) != 3 {
+			t.Errorf("expected 3 resources, got %d", len(resources))
+		}
+
+		for i, res := range resources {
+			expectedName := fmt.Sprintf("pipeline-%d", i+1)
+			if res.Name != expectedName {
+				t.Errorf("expected resource name '%s', got '%s'", expectedName, res.Name)
+			}
+			if res.Resource != "pipe4" {
+				t.Errorf("expected resource type 'pipe4', got '%s'", res.Resource)
+			}
+		}
+	})
+
+}
