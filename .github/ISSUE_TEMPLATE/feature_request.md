@@ -10,19 +10,13 @@ assignees: ''
 
 <!-- Is your feature request related to a problem? Describe it clearly -->
 
----
-
 ## Proposed Solution
 
 <!-- Describe the solution you'd like to see implemented -->
 
----
-
 ## Alternatives Considered
 
 <!-- Have you considered any alternative approaches? -->
-
----
 
 ## Additional Context
 

@@ -10,19 +10,13 @@ assignees: ''
 
 <!-- Which section of the docs is affected? e.g., API Reference, README, Installation Guide -->
 
----
-
 ## Issue Description
 
 <!-- What is wrong or missing? -->
 
----
-
 ## Suggested Fix
 
 <!-- How could this be improved? -->
-
----
 
 ## Additional Context
 
