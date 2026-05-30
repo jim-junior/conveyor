@@ -376,6 +376,55 @@ func Test_Resource_FindAll(t *testing.T) {
 
 }
 
+func Test_FindByVersion(t *testing.T) {
+	db := setupTestDB(t)
+
+	resourcemodel := models.NewResourceModel(nil, db)
+
+	resource := types.Resource{
+		Name:     "pipeline-1",
+		Resource: "pipe4",
+		Spec:     map[string]interface{}{"key": "value"},
+	}
+
+	marshalResource, err := json.Marshal(resource)
+	if err != nil {
+		t.Fatalf("failed to marshal resource: %v", err)
+	}
+
+	// Insert a resource to find by version
+	err = resourcemodel.BadgerDBInsert(resource.Name, resource.Resource, marshalResource)
+	if err != nil {
+		t.Fatalf("failed to insert resource: %v", err)
+	}
+
+	// update the resource to create a new version
+	resource.Spec = map[string]interface{}{"key": "new value"}
+
+	_, err = resourcemodel.BadgerDBUpdate(resource.Name, resource.Resource, resource)
+	if err != nil {
+		t.Fatalf("failed to update resource: %v", err)
+	}
+
+	t.Run("Find Resource By Version", func(t *testing.T) {
+		foundResource, err := resourcemodel.BadgerDBFindByVersion(resource.Name, resource.Resource, "1")
+		if err != nil {
+			t.Fatalf("failed to find resource by version: %v", err)
+		}
+
+		if foundResource.Name != resource.Name {
+			t.Errorf("expected resource name '%s', got '%s'", resource.Name, foundResource.Name)
+		}
+		if foundResource.Resource != resource.Resource {
+			t.Errorf("expected resource type '%s', got '%s'", resource.Resource, foundResource.Resource)
+		}
+		specMap := foundResource.Spec.(map[string]interface{})
+		if specMap["key"] != "value" {
+			t.Errorf("expected spec key 'value', got '%s'", specMap["key"])
+		}
+	})
+}
+
 func Test_Resource_Update(t *testing.T) {
 	db := setupTestDB(t)
 

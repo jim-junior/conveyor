@@ -456,6 +456,30 @@ func (m *ResourceModel) FindByVersion(name string, resourceType string, version 
 	return resource, nil
 }
 
+func (m *ResourceModel) BadgerDBFindByVersion(name string, resourceType string, version string) (types.Resource, error) {
+	key := []byte(fmt.Sprintf("/resources/%s/%s/%s", resourceType, name, version))
+
+	var resource types.Resource
+	err := m.DB.View(func(txn *badger.Txn) error {
+		item, err := txn.Get(key)
+		if err != nil {
+			if err == badger.ErrKeyNotFound {
+				return fmt.Errorf("resource with name %s, type %s and version %s not found", name, resourceType, version)
+			}
+			return err
+		}
+
+		return item.Value(func(val []byte) error {
+			return json.Unmarshal(val, &resource)
+		})
+	})
+	if err != nil {
+		return types.Resource{}, err
+	}
+
+	return resource, nil
+}
+
 /// A function that saves the driver result. This data is then stored in the metadata.driverresults.[driver] field of the resource and is arbitrary data types
 
 func (m *ResourceModel) SaveDriverResult(name string, resourceType string, driver string, result interface{}) error {
