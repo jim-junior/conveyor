@@ -1,435 +1,589 @@
-import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, Container, Stack, Chip } from "@mui/joy";
-import { IoFlash } from "react-icons/io5";
-import { SiKubernetes } from "react-icons/si";
-import { VscGraph } from "react-icons/vsc";
-import { MdOutlineArrowForward } from "react-icons/md";
-import { FaGithub } from "react-icons/fa";
+import React from "react";
 import Link from "@docusaurus/Link";
+import {
+  Box,
+  Button,
+  Chip,
+  Container,
+  Divider,
+  Stack,
+  Typography,
+} from "@mui/joy";
+import {
+  MdApi,
+  MdArrowForward,
+  MdOutlineHub,
+  MdOutlineMemory,
+  MdOutlineTerminal,
+  MdSchema,
+  MdStream,
+} from "react-icons/md";
+import { FaGithub } from "react-icons/fa";
+import { VscGraph } from "react-icons/vsc";
 
-const CodeBlock = () => {
-  const [currentStep, setCurrentStep] = useState(0);
+const capabilities = [
+  {
+    title: "Control plane",
+    description:
+      "Manages workflow state, job lifecycle, events, retries, cancellation, and log coordination.",
+    icon: MdOutlineMemory,
+  },
+  {
+    title: "Driver model",
+    description:
+      "Delegates execution to user-defined drivers, allowing workloads to run on Kubernetes, servers, VMs, edge devices, or custom infrastructure.",
+    icon: MdOutlineHub,
+  },
+  {
+    title: "API-first runtime",
+    description:
+      "Exposes orchestration primitives through APIs and SDKs so Conveyor can be embedded into other platforms.",
+    icon: MdApi,
+  },
+  {
+    title: "Log streaming",
+    description:
+      "Streams execution logs from drivers back to the control plane for consumption by external tools or user interfaces.",
+    icon: MdStream,
+  },
+];
 
-  const codeSteps = [
+const relevancePoints = [
+  {
+    title: "Decouples orchestration from execution",
+    description:
+      "Conveyor does not assume how a job should run. It tracks and coordinates the lifecycle while drivers implement the execution strategy.",
+  },
+  {
+    title: "Useful for platform builders",
+    description:
+      "It is designed for teams building internal developer platforms, CI/CD backends, PaaS systems, or automation layers.",
+  },
+  {
+    title: "Infrastructure-agnostic by design",
+    description:
+      "The driver boundary allows Conveyor to target different environments without tying the core runtime to one infrastructure API.",
+  },
+];
+
+function EtherealBackground() {
+  return (
+    <Box
+      aria-hidden
+      sx={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          inset: "-18%",
+          background:
+            "radial-gradient(circle at 18% 18%, rgba(125, 211, 252, 0.2), transparent 28%), radial-gradient(circle at 78% 8%, rgba(2, 132, 199, 0.14), transparent 24%), radial-gradient(circle at 64% 80%, rgba(186, 230, 253, 0.18), transparent 32%)",
+          filter: "blur(14px)",
+        },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "linear-gradient(rgba(2, 132, 199, 0.075) 1px, transparent 1px), linear-gradient(90deg, rgba(2, 132, 199, 0.075) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+          maskImage:
+            "linear-gradient(to bottom, transparent, black 16%, black 78%, transparent)",
+        },
+      }}
+    />
+  );
+}
+
+function RuntimeDiagram() {
+  const layers = [
     {
-      title: "Initialize Conveyor CI",
-      code: `$ conveyor init
-Initializing Conveyor CI...
-✔ Using existing configuration directory: /home/user/.config/conveyor
-✔ Using existing certificate directory: /home/user/.config/conveyor/certs
-🛡 Generating CA certificate...
-🛡 Generating server certificate...
-✔ Successfully generated TLS certificates
-✔ Generated configuration file: /home/user/.config/conveyor/conveyor.yml
-
-✔ Conveyor CI initialization completed successfully!
-
-Generated files:
-  • Configuration: /home/user/.config/conveyor/conveyor.yml
-  • CA Certificate: /home/user/.config/conveyor/certs/ca.pem
-  • Server Certificate: /home/user/.config/conveyor/certs/server.crt
-  • Server Private Key: /home/user/.config/conveyor/certs/server.key
-
-Next steps:
-  1. Review and customize the configuration in conveyor.yml
-  2. Start the Conveyor API server: conveyor api
-  3. Visit the documentation: https://conveyor.open.ug`,
+      title: "External Platform",
+      detail: "UI, auth, product logic, developer experience",
     },
     {
-      title: "Start Conveyor API Server",
-      code: `$ conveyor up
-2025/09/28 22:04:15 Starting embedded NATS server with JetStream...
-2025/09/28 22:04:15 NATS server started on nats://0.0.0.0:4222
-2025/09/28 22:04:15 Embedded etcd is ready on
-2025/09/28 22:04:15 Starting the engine...
-
- ┌───────────────────────────────────────────────────┐ 
- │                Conveyor API Server                │ 
- │                   Fiber v2.52.9                   │ 
- │               http://127.0.0.1:8080               │ 
- │       (bound on host 0.0.0.0 and port 8080)       │ 
- │                                                   │ 
- │ Handlers ............ 32  Processes ........... 1 │ 
- │ Prefork ....... Disabled  PID ............ 281038 │ 
- └───────────────────────────────────────────────────┘ 
-
-2025/09/28 22:04:15 Engine started and listening for pipeline events...
-2025/09/28 22:04:15 Log consumer started...`,
+      title: "Conveyor CI",
+      detail: "workflow state, job lifecycle, events, logs, APIs",
+    },
+    {
+      title: "Driver Layer",
+      detail: "Kubernetes driver, server driver, VM driver, edge driver",
+    },
+    {
+      title: "Execution Environment",
+      detail: "containers, processes, devices, clusters, custom systems",
     },
   ];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentStep((prev) => (prev + 1) % codeSteps.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <Box
       sx={{
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
-        borderRadius: 12,
-        p: 3,
-        fontFamily: 'Monaco, "Lucida Console", monospace',
-        fontSize: "14px",
-        minHeight: "280px",
-        position: "relative",
         border: "1px solid",
-        borderColor: "primary.300",
-        boxShadow: "0 8px 32px rgba(59, 130, 246, 0.15)",
-        overflow: "hidden",
+        borderColor: "rgba(125, 211, 252, 0.25)",
+        borderRadius: "28px",
+        p: { xs: 2, md: 3 },
+        bgcolor: "rgba(2, 6, 23, 0.72)",
+        backdropFilter: "blur(22px)",
+        boxShadow:
+          "0 28px 90px rgba(8, 47, 73, 0.22), inset 0 1px 0 rgba(255,255,255,0.08)",
+        color: "#e0f2fe",
       }}
     >
+      <Stack spacing={1.5}>
+        {layers.map((layer, index) => (
+          <React.Fragment key={layer.title}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "44px 1fr",
+                gap: 1.5,
+                alignItems: "center",
+                p: 1.5,
+                borderRadius: "18px",
+                border: "1px solid",
+                borderColor:
+                  layer.title === "Conveyor CI"
+                    ? "rgba(125, 211, 252, 0.55)"
+                    : "rgba(125, 211, 252, 0.15)",
+                bgcolor:
+                  layer.title === "Conveyor CI"
+                    ? "rgba(2, 132, 199, 0.18)"
+                    : "rgba(15, 23, 42, 0.54)",
+              }}
+            >
+              <Box
+                sx={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: "14px",
+                  display: "grid",
+                  placeItems: "center",
+                  color: "#bae6fd",
+                  bgcolor: "rgba(56, 189, 248, 0.12)",
+                  border: "1px solid rgba(125, 211, 252, 0.18)",
+                }}
+              >
+                {index === 0 && <MdOutlineTerminal size={22} />}
+                {index === 1 && <MdOutlineMemory size={22} />}
+                {index === 2 && <MdOutlineHub size={22} />}
+                {index === 3 && <MdSchema size={22} />}
+              </Box>
+
+              <Box>
+                <Typography level="title-sm" sx={{ color: "#f0f9ff" }}>
+                  {layer.title}
+                </Typography>
+                <Typography level="body-sm" sx={{ color: "#93c5fd" }}>
+                  {layer.detail}
+                </Typography>
+              </Box>
+            </Box>
+
+            {index !== layers.length - 1 && (
+              <Box
+                sx={{
+                  height: 18,
+                  width: 1,
+                  bgcolor: "rgba(125, 211, 252, 0.24)",
+                  ml: "34px",
+                }}
+              />
+            )}
+          </React.Fragment>
+        ))}
+      </Stack>
+
+      <Divider sx={{ my: 3, borderColor: "rgba(125, 211, 252, 0.15)" }} />
+
       <Box
         sx={{
-          display: "flex",
-          alignItems: "center",
-          mb: 2,
-          opacity: 0.8,
+          p: 2,
+          borderRadius: "18px",
+          bgcolor: "rgba(15, 23, 42, 0.76)",
+          border: "1px solid rgba(125, 211, 252, 0.14)",
+          fontFamily:
+            'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
+          fontSize: { xs: 12.5, md: 13.5 },
+          lineHeight: 1.8,
+          color: "#dbeafe",
+          overflowX: "auto",
         }}
       >
-        <Box sx={{ display: "flex", gap: 1, mr: 2 }}>
-          <Box sx={{ w: 12, h: 12, borderRadius: "50%", bgcolor: "#ef4444" }} />
-          <Box sx={{ w: 12, h: 12, borderRadius: "50%", bgcolor: "#f59e0b" }} />
-          <Box sx={{ w: 12, h: 12, borderRadius: "50%", bgcolor: "#10b981" }} />
+        <Box component="span" sx={{ color: "#7dd3fc" }}>
+          conveyor
         </Box>
-        <Typography level="body-sm" sx={{ color: "#64748b" }}>
-          {codeSteps[currentStep].title}
-        </Typography>
-      </Box>
-
-      <Box
-        sx={{
-          position: "relative",
-          height: "200px",
-          overflow: "hidden",
-        }}
-      >
-        {codeSteps.map((step, index) => (
-          <Box
-            key={index}
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              opacity: currentStep === index ? 1 : 0,
-              transform: `translateY(${currentStep === index ? 0 : 20}px)`,
-              transition: "all 0.6s ease-in-out",
-              whiteSpace: "pre-wrap",
-              color: "#e2e8f0",
-              lineHeight: 1.5,
-            }}
-          >
-            {step.code}
-          </Box>
-        ))}
-      </Box>
-
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: 16,
-          right: 16,
-          display: "flex",
-          gap: 1,
-        }}
-      >
-        {codeSteps.map((_, index) => (
-          <Box
-            key={index}
-            sx={{
-              w: 8,
-              h: 8,
-              borderRadius: "50%",
-              bgcolor: currentStep === index ? "primary.400" : "neutral.600",
-              transition: "all 0.3s ease",
-            }}
-          />
-        ))}
+        {" receives workflow event\n"}
+        <Box component="span" sx={{ color: "#7dd3fc" }}>
+          conveyor
+        </Box>
+        {" persists job state\n"}
+        <Box component="span" sx={{ color: "#7dd3fc" }}>
+          driver
+        </Box>
+        {" executes workload\n"}
+        <Box component="span" sx={{ color: "#7dd3fc" }}>
+          conveyor
+        </Box>
+        {" streams logs and status"}
       </Box>
     </Box>
   );
-};
+}
 
-const FloatingCard = ({ children, delay = 0 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
+function CapabilityCard({
+  title,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+}) {
   return (
     <Box
       sx={{
-        transform: isVisible ? "translateY(0px)" : "translateY(30px)",
-        opacity: isVisible ? 1 : 0,
-        transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
+        p: 2.5,
+        borderRadius: "22px",
+        border: "1px solid rgba(2, 132, 199, 0.12)",
+        bgcolor: "rgba(255, 255, 255, 0.66)",
+        boxShadow: "0 18px 50px rgba(8, 47, 73, 0.06)",
+        backdropFilter: "blur(14px)",
       }}
     >
-      {children}
+      <Box
+        sx={{
+          width: 42,
+          height: 42,
+          borderRadius: "15px",
+          display: "grid",
+          placeItems: "center",
+          color: "#0284c7",
+          bgcolor: "rgba(186, 230, 253, 0.5)",
+          border: "1px solid rgba(2, 132, 199, 0.12)",
+          mb: 2,
+        }}
+      >
+        <Icon size={22} />
+      </Box>
+
+      <Typography
+        level="title-md"
+        sx={{
+          color: "#082f49",
+          letterSpacing: "-0.02em",
+          mb: 0.75,
+        }}
+      >
+        {title}
+      </Typography>
+
+      <Typography level="body-sm" sx={{ color: "#475569", lineHeight: 1.65 }}>
+        {description}
+      </Typography>
     </Box>
   );
-};
+}
+
+function RelevanceCard({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <Box
+      sx={{
+        p: 2.5,
+        borderRadius: "22px",
+        bgcolor: "rgba(240, 249, 255, 0.76)",
+        border: "1px solid rgba(2, 132, 199, 0.12)",
+      }}
+    >
+      <Typography
+        level="title-md"
+        sx={{
+          color: "#075985",
+          mb: 0.8,
+          letterSpacing: "-0.02em",
+        }}
+      >
+        {title}
+      </Typography>
+
+      <Typography level="body-sm" sx={{ color: "#475569", lineHeight: 1.7 }}>
+        {description}
+      </Typography>
+    </Box>
+  );
+}
 
 const Hero = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background: `
-          radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, 
-            rgba(59, 130, 246, 0.1) 0%, 
-            transparent 50%),
-          linear-gradient(135deg, 
-            #0f172a 0%, 
-            #1e293b 50%, 
-            #0f172a 100%)
-        `,
         position: "relative",
-        display: "flex",
-        alignItems: "center",
         overflow: "hidden",
-        transition: "background 0.3s ease",
+        background:
+          "linear-gradient(180deg, #f0f9ff 0%, #ffffff 46%, #f8fafc 100%)",
+        color: "#082f49",
       }}
     >
-      {/* Animated background elements */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          opacity: 0.1,
-          background: `
-            radial-gradient(circle at 20% 30%, #3b82f6 0%, transparent 30%),
-            radial-gradient(circle at 80% 70%, #1d4ed8 0%, transparent 30%),
-            radial-gradient(circle at 60% 20%, #2563eb 0%, transparent 25%)
-          `,
-          animation: "pulse 4s ease-in-out infinite",
-        }}
-      />
+      <EtherealBackground />
 
-      <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1 }}>
+      <Container
+        maxWidth="xl"
+        sx={{
+          position: "relative",
+          zIndex: 1,
+          pt: { xs: 8, md: 11 },
+          pb: { xs: 7, md: 10 },
+        }}
+      >
         <Stack
           direction={{ xs: "column", lg: "row" }}
-          spacing={6}
+          spacing={{ xs: 6, lg: 8 }}
           alignItems="center"
-          sx={{ py: 8 }}
         >
-          {/* Left Content */}
-          <Box sx={{ flex: 1, maxWidth: { lg: "50%" } }}>
-            <FloatingCard>
-              <Stack spacing={3}>
-                <Box>
-                  <Chip
-                    variant="outlined"
-                    sx={{
-                      borderColor: "primary.300",
-                      color: "primary.300",
-                      bgcolor: "rgba(59, 130, 246, 0.1)",
-                      mb: 2,
-                    }}
-                    startDecorator={<IoFlash />}
-                  >
-                    Next Gen CI/CD Engine
-                  </Chip>
+          <Box sx={{ flex: 1, maxWidth: 720 }}>
+            <Chip
+              variant="soft"
+              size="lg"
+              sx={{
+                mb: 2.5,
+                color: "#0369a1",
+                bgcolor: "rgba(186, 230, 253, 0.58)",
+                border: "1px solid rgba(2, 132, 199, 0.14)",
+                borderRadius: "999px",
+                backdropFilter: "blur(14px)",
+              }}
+              startDecorator={<VscGraph />}
+            >
+              Open-source workflow orchestration runtime
+            </Chip>
 
-                  <Typography
-                    level="h1"
-                    sx={{
-                      fontSize: { xs: "2.5rem", md: "3.5rem", lg: "4rem" },
-                      fontWeight: 800,
-                      background:
-                        "linear-gradient(135deg, #ffffff 0%, #3b82f6 100%)",
-                      backgroundClip: "text",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      lineHeight: 1.1,
-                      mb: 2,
-                    }}
-                  >
-                    Conveyor CI
-                  </Typography>
+            <Typography
+              level="h1"
+              sx={{
+                fontSize: {
+                  xs: "2.45rem",
+                  sm: "3.3rem",
+                  md: "4.35rem",
+                  lg: "4.9rem",
+                },
+                lineHeight: 0.98,
+                letterSpacing: "-0.065em",
+                fontWeight: 800,
+                color: "#082f49",
+                maxWidth: 760,
+              }}
+            >
+              A headless control plane for CI/CD and automation systems.
+            </Typography>
 
-                  <Typography
-                    level="h2"
-                    sx={{
-                      fontSize: { xs: "1.5rem", md: "2rem" },
-                      fontWeight: 400,
-                      color: "#94a3b8",
-                      mb: 3,
-                      maxWidth: "600px",
-                    }}
-                  >
-                    A lightweight headless, cloud-native CI/CD orchestration
-                    engine for building CI/CD systems with ease.
-                  </Typography>
-                </Box>
+            <Typography
+              level="body-lg"
+              sx={{
+                mt: 3,
+                maxWidth: 670,
+                color: "#334155",
+                fontSize: { xs: "1.03rem", md: "1.15rem" },
+                lineHeight: 1.8,
+              }}
+            >
+              Conveyor CI is an embeddable workflow orchestration runtime for
+              platform developers. It manages workflows, jobs, state
+              transitions, events, and logs, while execution is delegated to
+              infrastructure-specific drivers.
+            </Typography>
 
-                <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap" }}>
-                  <Chip
-                    sx={{
-                      borderColor: "primary.300",
-                      color: "primary.300",
-                      bgcolor: "rgba(59, 130, 246, 0.1)",
-                      mb: 2,
-                    }}
-                    color="primary"
-                    size="lg"
-                    startDecorator={<IoFlash />}
-                  >
-                    Lightning Fast
-                  </Chip>
-                  <Chip
-                    sx={{
-                      borderColor: "primary.300",
-                      color: "primary.300",
-                      bgcolor: "rgba(59, 130, 246, 0.1)",
-                      mb: 2,
-                    }}
-                    color="primary"
-                    size="lg"
-                    startDecorator={<SiKubernetes />}
-                  >
-                    Composable & Scalable
-                  </Chip>
-                  <Chip
-                    sx={{
-                      borderColor: "primary.300",
-                      color: "primary.300",
-                      bgcolor: "rgba(59, 130, 246, 0.1)",
-                      mb: 2,
-                    }}
-                    color="primary"
-                    size="lg"
-                    startDecorator={<VscGraph />}
-                  >
-                    Extensible
-                  </Chip>
-                </Stack>
+            <Typography
+              level="body-md"
+              sx={{
+                mt: 2,
+                maxWidth: 650,
+                color: "#475569",
+                lineHeight: 1.75,
+              }}
+            >
+              It is intended for teams building internal developer platforms,
+              custom CI/CD systems, deployment backends, and automation layers
+              that need control over how and where workloads run.
+            </Typography>
 
-                <Typography
-                  level="body-lg"
-                  sx={{
-                    color: "#cbd5e1",
-                    lineHeight: 1.7,
-                    fontSize: "1.1rem",
-                    maxWidth: "540px",
-                  }}
-                >
-                  Conveyor CI is an API-first, cloud-native engine that
-                  orchestrates CI/CD pipelines without imposing a UI or
-                  opinionated workflows. Define pipelines declaratively, react
-                  to events, and let Conveyor reconcile and execute them through
-                  pluggable drivers and runtimes.
-                </Typography>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1.5}
+              sx={{ mt: 4 }}
+            >
+              <Button
+                size="lg"
+                component={Link}
+                href="/docs/introduction"
+                endDecorator={<MdArrowForward />}
+                sx={{
+                  px: 3.5,
+                  py: 1.35,
+                  borderRadius: "999px",
+                  bgcolor: "#0284c7",
+                  boxShadow: "0 18px 45px rgba(2, 132, 199, 0.18)",
+                  "&:hover": {
+                    bgcolor: "#0369a1",
+                  },
+                }}
+              >
+                Read documentation
+              </Button>
 
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={2}
-                  sx={{ pt: 2 }}
-                >
-                  <Button
-                    size="lg"
-                    sx={{
-                      bgcolor: "primary.500",
-                      "&:hover": { bgcolor: "primary.600" },
-                      px: 4,
-                      py: 1.5,
-                      fontSize: "1.1rem",
-                      borderRadius: 8,
-                    }}
-                    component={Link}
-                    href="docs/introduction"
-                    endDecorator={<MdOutlineArrowForward />}
-                  >
-                    Get Started
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="lg"
-                    sx={{
-                      borderColor: "primary.300",
-                      color: "primary.300",
-                      "&:hover": {
-                        bgcolor: "rgba(59, 130, 246, 0.1)",
-                        borderColor: "primary.400",
-                      },
-                      px: 4,
-                      py: 1.5,
-                      fontSize: "1.1rem",
-                      borderRadius: 8,
-                    }}
-                    component={Link}
-                    href="https://github.com/open-ug/conveyor"
-                    startDecorator={<FaGithub />}
-                  >
-                    View on GitHub
-                  </Button>
-                </Stack>
+              <Button
+                size="lg"
+                variant="outlined"
+                component={Link}
+                href="https://github.com/open-ug/conveyor"
+                startDecorator={<FaGithub />}
+                sx={{
+                  px: 3.5,
+                  py: 1.35,
+                  borderRadius: "999px",
+                  color: "#075985",
+                  borderColor: "rgba(2, 132, 199, 0.24)",
+                  bgcolor: "rgba(255,255,255,0.55)",
+                  backdropFilter: "blur(12px)",
+                  "&:hover": {
+                    bgcolor: "rgba(186, 230, 253, 0.34)",
+                    borderColor: "rgba(2, 132, 199, 0.38)",
+                  },
+                }}
+              >
+                View source
+              </Button>
+            </Stack>
 
-                <Box sx={{ pt: 3 }}>
-                  <Typography level="body-sm" sx={{ color: "#64748b", mb: 1 }}>
-                    Quick Install:
-                  </Typography>
-                  <Box
-                    sx={{
-                      bgcolor: "#0f172a",
-                      border: "1px solid",
-                      borderColor: "primary.700",
-                      borderRadius: 6,
-                      p: 2,
-                      fontFamily: "Monaco, monospace",
-                      color: "#e2e8f0",
-                      fontSize: "14px",
-                      maxWidth: "400px",
-                    }}
-                  >
-                    $ curl -fsSL conveyor.open.ug/install | sh
-                  </Box>
-                </Box>
-              </Stack>
-            </FloatingCard>
+            <Box
+              sx={{
+                mt: 4,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 1.2,
+                px: 1.6,
+                py: 1.1,
+                borderRadius: "14px",
+                bgcolor: "rgba(8, 47, 73, 0.92)",
+                color: "#e0f2fe",
+                border: "1px solid rgba(125, 211, 252, 0.22)",
+                fontFamily:
+                  'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
+                fontSize: { xs: 12.5, md: 13.5 },
+                boxShadow: "0 18px 48px rgba(8, 47, 73, 0.14)",
+                maxWidth: "100%",
+                overflowX: "auto",
+              }}
+            >
+              <Box component="span" sx={{ color: "#7dd3fc" }}>
+                $
+              </Box>
+              <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                curl -fsSL https://conveyor.open.ug/install | sh
+              </Box>
+            </Box>
           </Box>
 
-          {/* Right Content - Code Demo */}
-          <Box sx={{ flex: 1, maxWidth: { lg: "50%" }, width: "100%" }}>
-            <FloatingCard delay={400}>
-              <CodeBlock />
-            </FloatingCard>
+          <Box sx={{ flex: 1, width: "100%", maxWidth: 590 }}>
+            <RuntimeDiagram />
           </Box>
         </Stack>
-      </Container>
 
-      <style>{`
-        @keyframes pulse {
-          0%,
-          100% {
-            opacity: 0.1;
-          }
-          50% {
-            opacity: 0.2;
-          }
-        }
-      `}</style>
+        <Box sx={{ mt: { xs: 7, md: 10 } }}>
+          <Typography
+            level="h2"
+            sx={{
+              color: "#082f49",
+              fontSize: { xs: "2rem", md: "2.7rem" },
+              letterSpacing: "-0.045em",
+              mb: 1,
+            }}
+          >
+            Technical scope
+          </Typography>
+
+          <Typography
+            level="body-md"
+            sx={{
+              color: "#475569",
+              maxWidth: 760,
+              lineHeight: 1.75,
+              mb: 3,
+            }}
+          >
+            Conveyor focuses on the orchestration layer of automation systems.
+            It does not provide a hosted service, a dashboard-first CI product,
+            or a fixed runner model.
+          </Typography>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                lg: "repeat(4, 1fr)",
+              },
+              gap: 2,
+            }}
+          >
+            {capabilities.map((capability) => (
+              <CapabilityCard key={capability.title} {...capability} />
+            ))}
+          </Box>
+        </Box>
+
+        <Box sx={{ mt: { xs: 7, md: 9 } }}>
+          <Typography
+            level="h2"
+            sx={{
+              color: "#082f49",
+              fontSize: { xs: "2rem", md: "2.7rem" },
+              letterSpacing: "-0.045em",
+              mb: 1,
+            }}
+          >
+            Why it is technically relevant
+          </Typography>
+
+          <Typography
+            level="body-md"
+            sx={{
+              color: "#475569",
+              maxWidth: 780,
+              lineHeight: 1.75,
+              mb: 3,
+            }}
+          >
+            Conveyor is useful when the workflow engine should be embedded
+            inside another system rather than adopted as a complete CI/CD
+            platform.
+          </Typography>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                md: "repeat(3, 1fr)",
+              },
+              gap: 2,
+            }}
+          >
+            {relevancePoints.map((point) => (
+              <RelevanceCard key={point.title} {...point} />
+            ))}
+          </Box>
+        </Box>
+      </Container>
     </Box>
   );
 };
