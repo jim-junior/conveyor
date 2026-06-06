@@ -20,24 +20,62 @@
 
 # Conveyor CI
 
-### The Headless Control Plane for Building CI/CD Platforms
+**A headless workflow orchestration engine for building custom CI/CD, automation, and delivery platforms.**
 
-Conveyor CI is not a CI tool. It is a control plane for building CI systems. If Jenkins and GitHub Actions are “all-in-one” platforms, Conveyor CI is the orchestration engine underneath them minus the UI, minus opinionated runners, minus infrastructure lock-in. You don’t use Conveyor to run `go build`. You use Conveyor to build a system that runs `go build` for thousands of users.
+Conveyor CI is a lightweight control plane for platform teams that want to build their own CI/CD systems, deployment platforms, internal developer platforms, or automation backends.
 
-## Who Is This For?
+It is not an all-in-one CI/CD product like Jenkins, GitHub Actions, GitLab CI, or Argo Workflows. Conveyor does not provide a built-in dashboard, hosted runners, or an opinionated execution environment. Instead, it provides the orchestration layer: workflow state, job lifecycle management, event-driven execution, log streaming, and APIs that you can embed into your own platform.
 
-Conveyor CI is built for _platform engineers_ and SaaS builders, not end users. It is ideal for:
+You bring the execution logic. Conveyor manages the orchestration.
 
-* Internal Developer Platforms (IDPs) embedding CI/CD capabilities
-* SaaS products offering “Deploy”, “Build”, or “Automation” features
-* Edge & air-gapped environments requiring custom execution logic
-* Organizations with strict security or infrastructure control needs
+## Why Conveyor CI?
 
-If you need complete control over where and how workloads execute, Conveyor is for you.
+Many CI/CD and workflow systems are built as complete platforms. They usually bundle together:
 
-## Architecture: Control Plane vs Execution
+- A user interface
+- Pipeline orchestration
+- Job scheduling
+- Execution environments or runners
+- Storage
+- Logs
+- Authentication and access control
+- Infrastructure-specific assumptions
 
-Conveyor CI enforces a strict architectural boundary.
+That works well when you want to adopt a complete CI/CD system.
+
+Conveyor CI is designed for a different use case: building your own platform.
+
+It gives platform developers a small, embeddable orchestration core that can be connected to custom execution environments through drivers. This makes it useful when you need full control over where workloads run, how they run, and how the developer experience is exposed.
+
+## Use Cases
+
+Conveyor CI is designed for platform builders, infrastructure teams, and product teams building automation into their own systems.
+
+Common use cases include:
+
+- Internal Developer Platforms that need custom build and deployment workflows
+- PaaS platforms that provide “deploy from Git” or “build from source” features
+- SaaS products that need background job orchestration or task execution
+- Custom CI/CD platforms with organization-specific execution rules
+- Edge, IoT, or air-gapped environments where standard CI/CD systems are too heavy or too restrictive
+- Systems that need to orchestrate jobs across Kubernetes, bare metal, virtual machines, or custom infrastructure
+
+## Project Status
+
+Conveyor CI is under active development.
+
+The project currently focuses on the core orchestration runtime, SDK design, workflow execution primitives, driver integration model, and log streaming. Some advanced capabilities, such as full DAG execution, secrets management, RBAC, namespacing, and observability improvements, are part of the roadmap.
+
+For current progress, see the project roadmap:
+
+- [Roadmap](https://conveyor.open.ug/docs/contributing/roadmap)
+- [GitHub Milestones](https://github.com/open-ug/conveyor/milestones)
+
+## Architecture
+
+Conveyor CI separates orchestration from execution.
+
+The control plane is responsible for managing workflow and job state. Drivers are responsible for actually running the workload.
 
 | Component                     | Responsibility                                                                       | Provided By |
 | ----------------------------- | ------------------------------------------------------------------------------------ | ----------- |
