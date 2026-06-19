@@ -1,7 +1,7 @@
 Hey, Thank you for installing Conveyor 
 
-This chart deploys the Conveyor server using the official Docker image:
-  openug/conveyor
+This chart deploys the Conveyor server using the official container image:
+  ghcr.io/open-ug/conveyor
 
 ---------------------------------------------------------------------
 ## Accessing Conveyor
@@ -26,7 +26,7 @@ Conveyor expects its configuration at:
   /etc/conveyor/conveyor.yml
 
 By default, the chart mounts the configuration already included inside
-the official Docker image (generated via `conveyor init`).
+the official container image (generated via `conveyor init`).
 
 ### Override the configuration
 To provide your own conveyor.yml:
@@ -73,7 +73,7 @@ Enable overrides in values.yaml:
       existingSecret: conveyor-certs
 
 If overrides are disabled, Conveyor uses certificates baked into the
-official Docker image.
+official container image.
 
 ---------------------------------------------------------------------
 ## Persistent Storage
