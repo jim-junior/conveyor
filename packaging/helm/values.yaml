@@ -1,4 +1,3 @@
-
 # Default values for Conveyor Helm Chart
 namespace: ""
 nameOverride: ""
@@ -12,9 +11,9 @@ pvc:
 ingress:
   enabled: false
 
-# the docker image 
+# the container image
 image: 
-  repository: openug/conveyor 
+  repository: ghcr.io/open-ug/conveyor
   tag: latest
   pullPolicy: IfNotPresent 
 
