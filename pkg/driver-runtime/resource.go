@@ -146,3 +146,14 @@ func (c *Client) DeleteResourceDefinition(ctx context.Context, name string) (*ty
 
 	return &resp, nil
 }
+
+func (c *Client) CreatePipeline(ctx context.Context, pipeline *types.Pipeline) (*types.Pipeline, error) {
+	path := "/pipelines"
+
+	var resp types.Pipeline
+	if err := c.doRequest(ctx, http.MethodPost, path, pipeline, &resp); err != nil {
+		return nil, fmt.Errorf("CreatePipeline: failed to create pipeline, %w", err)
+	}
+
+	return &resp, nil
+}
